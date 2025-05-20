@@ -1,0 +1,31 @@
+# Python 缓存
+__pycache__/
+*.py[cod]
+*.pyo
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv/
+
+# VS Code 设置（如果使用）
+.vscode/
+
+# 密码存储文件（防止泄露）
+passwords.json
+passwords.csv
+
+# 环境变量或密钥文件（可选）
+.env
+*.key
+
+# macOS 系统文件
+.DS_Store
+
+# Windows 系统文件
+Thumbs.db
+desktop.ini
+
+# 日志或调试输出（可选）
+*.log
