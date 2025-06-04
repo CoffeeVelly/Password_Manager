@@ -7,6 +7,8 @@ from utils import load_key
 import csv
 import requests
 import hashlib
+import numpy as np
+import pandas as pd
 
 class PasswordManager:
     def __init__(self):
@@ -30,10 +32,9 @@ class PasswordManager:
             f.write(encrypted)
 
     def add_password(self, website, username, password):
-        #encrypted_password = self.cipher.encrypt(password.encode()).decode()
+        # encrypted_password = self.cipher.encrypt(password.encode()).decode()
         self.passwords[website] = {"username": username, "password": password}
         self.save_passwords()
-
 
     def get_password(self, website):
         return self.passwords.get(website)
@@ -48,11 +49,11 @@ class PasswordManager:
     def generate_password(self, length=12):
         chars = string.ascii_letters + string.digits + string.punctuation
         return ''.join(random.choice(chars) for _ in range(length))
-    
+
     def export_passwords(self, filename="passwords.csv"):
         with open(filename, mode='w', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
-            writer.writerow(["Website", "Username", "Password"])  # 表头
+            writer.writerow(["Website", "Username", "Password"])
             for website, data in self.passwords.items():
                 writer.writerow([website, data["username"], data["password"]])
         print(f"密码已成功导出为 CSV 到 {filename}")
@@ -77,3 +78,37 @@ class PasswordManager:
         except Exception as e:
             print("检查泄露失败：", e)
             return -1
+
+    def get_password_lengths(self):
+        """获取所有保存密码的长度列表"""
+        lengths = [len(data["password"]) for data in self.passwords.values()]
+        return np.array(lengths)
+
+    def analyze_password_strength(self):
+        """分析密码长度的统计信息"""
+        lengths = self.get_password_lengths()
+        if len(lengths) == 0:
+            return None, None, None, None, None
+
+        min_len = np.min(lengths)
+        max_len = np.max(lengths)
+        avg_len = np.mean(lengths)
+        median_len = np.median(lengths)
+        std_dev = np.std(lengths)
+
+        return min_len, max_len, avg_len, median_len, std_dev
+
+    def get_passwords_dataframe(self):
+        """将密码数据转换为 Pandas DataFrame"""
+        if not self.passwords:
+            return pd.DataFrame(columns=['Website', 'Username', 'Password', 'PasswordLength'])
+
+        data_list = []
+        for website, data in self.passwords.items():
+            data_list.append({
+                'Website': website,
+                'Username': data['username'],
+                'Password': data['password'],
+                'PasswordLength': len(data['password'])
+            })
+        return pd.DataFrame(data_list)
